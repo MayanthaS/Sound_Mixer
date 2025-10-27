@@ -1,10 +1,9 @@
 import {sound,defaultPresent} from "./soundData.js";
-
+import {SoundManager} from "./soundManager.js";
 class SoundMixer{
     //Initialize the dependencies and default values
  constructor(){
-    console.log("Sound Mixer App Initialized");
-    this.soundManager = null;
+    this.soundManager = new SoundManager();
     this.ui = null;
     this.timer = null;
     this.currentSoundState ={};
@@ -12,7 +11,7 @@ class SoundMixer{
  }
  init(){
     try{
-       console.log("Initializing Sound Mixer App..."); 
+       this.soundManager.loadSound('rain','sounds/rain.mp3'); 
        this.isInitialized=true;
     }catch(error){
        console.error("Error during initialization:",error);
