@@ -67,3 +67,34 @@ export const sound = [
 
 
 ];
+//default present config
+export const defaultPresent ={
+    focus:{
+        name:'Focus',
+        icon:'fa-brain',
+        sounds:{
+            rain:30,
+            cafe:30,
+            windo:40
+        },
+    },
+    relax:{
+        name:'Relax',
+        icon:'fa-spa',
+        sounds:{
+            ocean:40,
+            forest:30,
+            wind:30
+        },
+    },
+    sleep:{
+        name:'Sleep',
+        icon:'fa-bed',
+        sounds:{
+            rain:40,
+            night:30,
+            wind:30
+        },
+    },
+
+};
