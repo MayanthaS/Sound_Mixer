@@ -1,16 +1,23 @@
 import {sounds,defaultPresets} from "./soundData.js";
 import {soundManager} from "./soundManager.js";
+import {UI} from "./ui.js";
 class SoundMixer{
     //Initialize the dependencies and default values
  constructor(){
     this.soundManager = new soundManager();
-    this.ui = null;
+    this.ui = new UI();
     this.timer = null;
     this.currentSoundState ={};
     this.isInitialized=false;
  }
  async init(){
     try{
+      //Initialize UI
+         this.ui.init();
+
+      //Render sound cards
+      this.ui.renderSoundCards(sounds);
+
       //load all sounds
        this.loadAllSounds();
 
