@@ -2,9 +2,9 @@
 
 /* CSS Variables for Theming */
 :root {
-    --bg-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --glass-bg: rgba(255, 255, 255, 0.1);
-    --glass-border: rgba(255, 255, 255, 0.2);
+    --bg-primary: linear-gradient(135deg, #072fdf 0%, #764ba2 100%);
+    --glass-bg: rgba(255, 255, 255, 0.962);
+    --glass-border: rgba(11, 56, 253, 0.456);
     --text-primary: #ffffff;
     --text-secondary: rgba(255, 255, 255, 0.8);
 }
@@ -12,7 +12,7 @@
 
 /* Light Theme */
 body.light-theme {
-    background: linear-gradient(135deg, #ffeaa7 0%, #74b9ff 50%, #a29bfe 100%) !important;
+    background: linear-gradient(135deg, #ffeaa7 0%, #007dfa 50%, #a29bfe 100%) !important;
 }
 
 body.light-theme * {
@@ -20,7 +20,7 @@ body.light-theme * {
 }
 
 body.light-theme .text-white {
-    color: #2d3436 !important;
+    color: #111176 !important;
 }
 
 body.light-theme .bg-white\/10 {
