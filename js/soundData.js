@@ -1,17 +1,19 @@
 //Sound data config
 
-export const sound = [
+export const sounds = [
     {
         id: 'rain',
         name: 'Rain',
         icon: 'fa-cloud-rain',
         file: 'rain.mp3',
-        description: 'Gentle rain'
+        color:'from-blue-500 to-cyan-500',
+        description: 'Gentle rainfall'
     },
     {
         id: 'ocean',
         name: 'Ocean Waves',
         icon: 'fa-water',
+        color:'from-teal-400 to-blue-500',
         file: 'ocean.mp3',
         description: 'Relaxing ocean waves'
     },
@@ -21,7 +23,7 @@ export const sound = [
         icon: 'fa-tree',
         color:'from-green-400 to-emerald-500',
         file:'birds.mp3',
-        description: 'Birds chirping in forest'
+        description: 'Birds and wind in trees'
     },
     {
         id:'fireplace',
@@ -51,7 +53,7 @@ export const sound = [
         id:'cafe',
         name:'Cafe',
         icon:'fa-mug-hot',
-        color:'from-yellow-400 to-red-400',
+        color:'from-amber-600 to-yellow-600',
         file:'cafe.mp3',
         description:'Ambient cafe sounds'
     },
@@ -59,23 +61,23 @@ export const sound = [
         id:'night',
         name:'Night',
         icon:'fa-moon',
-        color:'from-blue-900 to-black',
+        color:'from-indigo-900 to-purple-600',
         file:'night.mp3',
-        description:'Calm night ambience'
+        description:'Crickets and night sounds'
     }
 
 
 
 ];
-//default present config
-export const defaultPresent ={
+//default presets config
+export const defaultPresets ={
     focus:{
         name:'Focus',
         icon:'fa-brain',
         sounds:{
             rain:30,
-            cafe:30,
-            windo:40
+            cafe:20,
+            windo:10
         },
     },
     relax:{
@@ -84,7 +86,7 @@ export const defaultPresent ={
         sounds:{
             ocean:40,
             forest:30,
-            wind:30
+            wind:20
         },
     },
     sleep:{
