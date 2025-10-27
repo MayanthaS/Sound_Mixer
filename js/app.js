@@ -9,9 +9,15 @@ class SoundMixer{
     this.currentSoundState ={};
     this.isInitialized=false;
  }
- init(){
+ async init(){
     try{
+      //load all sounds
        this.loadAllSounds();
+
+       //Try to play rain
+       this.soundManager.setVolume('rain',50);
+       await this.soundManager.playSound('rain');
+       
        this.isInitialized=true;
     }catch(error){
        console.error("Error during initialization:",error);
@@ -34,6 +40,10 @@ class SoundMixer{
 document.addEventListener('DOMContentLoaded',()=>{
     const app = new SoundMixer();
     app.init();
+
+
+    //make app available for testing in browser
+      window.app = app;
 });
 
 export default SoundMixer;
