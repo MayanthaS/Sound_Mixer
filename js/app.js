@@ -43,6 +43,16 @@ class SoundMixer{
             console.error(`Failed to load sound: ${sound.id} from ${audioUrl}`);
          }
       });
+
+      // hadlevolume slider
+      document.addEventListener('input',(e)=>{
+         if(e.target.classList.contains('volume-slider')){
+            const soundId = e.target.dataset.sound;
+            const volume = parseInt(e.target.value);
+            this.setSoundVolume(soundId,volume);
+           
+         }
+      });
    }
 
    //setup event listeners
@@ -78,6 +88,13 @@ class SoundMixer{
          this.ui.updateSoundPlayButton(soundId,false);
       }
 
+   }
+   //set sound volume
+   setSoundVolume(soundId, volume){
+      //const sound volume in manager
+      this.soundManager.setVolume(soundId,volume);
+      //update volume value in UI
+      this.ui.updateVolumeDisplay(soundId,volume);
    }
 }
 
