@@ -70,7 +70,23 @@ export class UI{
         sounds.forEach((sound)=>{
             const card = this.createSoundCard(sound);
             this.soundCardsContainer.appendChild(card);
+     } );
+    }
+    //update sound play butoon
+    updateSoundPlayButton(soundId, isPlaying){
+        const card = document.querySelector(`[data-sound ="${soundId}"]`);
+        if(card){
+            const playBtn = card.querySelector('.play-btn ');
+            const icon = playBtn.querySelector('i');
+            if(isPlaying){
+                playBtn.classList.add('playing');
+                icon.classList.remove('fa-play');
+                icon.classList.add('fa-pause');
+            }else{
+                playBtn.classList.remove('playing');
+                icon.classList.add('fa-play');
+                icon.classList.remove('fa-pause');
+            }
         }
-    );}
-
+    }
 }

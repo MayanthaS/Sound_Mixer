@@ -18,6 +18,9 @@ class SoundMixer{
       //Render sound cards
       this.ui.renderSoundCards(sounds);
 
+      //setup all event listeners
+      this.setupEventListeners();
+
       //load all sounds
        this.loadAllSounds();
 
@@ -40,6 +43,41 @@ class SoundMixer{
             console.error(`Failed to load sound: ${sound.id} from ${audioUrl}`);
          }
       });
+   }
+
+   //setup event listeners
+   setupEventListeners(){
+      //handle all clicks with event delegation
+      document.addEventListener('click', async (e) => {
+         //check if play button clicked
+         const playBtn = e.target.closest('.play-btn');
+         if(playBtn){
+            const soundId = playBtn.dataset.sound;
+            await this.toggleSound(soundId);
+         }
+      });
+   }
+   //toggle play/pause for specific sound
+   async toggleSound(soundId){
+      const audio = this.soundManager.audioElements.get(soundId);
+      if(!audio){
+         console.error(`Audio element for ${soundId} not found`);
+         return false;
+      }
+      if(audio.paused){
+         //sound is off, turn it on
+         this.soundManager.setVolume(soundId,50); //set default volume to 50
+         await this.soundManager.playSound(soundId);
+         //todo playsound
+        this.ui.updateSoundPlayButton(soundId,true );
+
+      }else{
+         //sound is on, turn it off
+         this.soundManager.pauseSound(soundId);
+         //todo update play button
+         this.ui.updateSoundPlayButton(soundId,false);
+      }
+
    }
 }
 
