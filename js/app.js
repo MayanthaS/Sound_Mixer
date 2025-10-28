@@ -121,9 +121,34 @@ class SoundMixer{
   //Set master volume
    setMasterVolume(volume){
       this.masterVolume = volume;
-   }
-   //update the display of master volume
 
+      //update the display of master volume
+   const masterVolumeValue = document.getElementById('masterVolume');
+      if(masterVolumeValue){
+         masterVolumeValue.textContent = `${volume}%`;
+      }
+      //apply master volume to all currently playing sound
+      this.applyMasterVolumeToAll();
+
+      //apply master volume to all sounds
+      applyMasterVolumeToAll(){
+         for(const [soundId,audio] of this.soundManager.audioElements){
+            if(!audio.paused){
+               const card = document.querySelector(`[data-sound ="${soundId}"]`);
+               const slider = card?.querySelector('.volume-slider');
+               if(slider){
+                  const individualVolume = parseInt(slider.value);
+                  //calculate effective volume
+                  const effectiveVolume = (individualVolume * this.masterVolume) / 100;
+
+                  //apply  to the actual audio element
+                  audio.volume = effectiveVolume / 100;
+               }
+            }
+      }
+   }
+
+   
 }
 
 //Initialize the app
