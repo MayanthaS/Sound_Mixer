@@ -8,7 +8,7 @@ class SoundMixer{
     this.ui = new UI();
     this.timer = null;
     this.currentSoundState ={};
-    this.masterOlume = 100;
+    this.masterVolume = 100;
     this.isInitialized=false;
  }
  async init(){
@@ -118,6 +118,12 @@ class SoundMixer{
       //update volume value in UI
       this.ui.updateVolumeDisplay(soundId,volume);
    }
+  //Set master volume
+   setMasterVolume(volume){
+      this.masterVolume = volume;
+   }
+   //update the display of master volume
+
 }
 
 //Initialize the app
