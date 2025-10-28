@@ -8,6 +8,7 @@ class SoundMixer{
     this.ui = new UI();
     this.timer = null;
     this.currentSoundState ={};
+    this.masterOlume = 100;
     this.isInitialized=false;
  }
  async init(){
