@@ -75,8 +75,20 @@ class SoundMixer{
          return false;
       }
       if(audio.paused){
+         //get current slider value
+         const card = document.querySelector(`[data-sound ="${soundId}"]`);
+         const slider = card.querySelector('.volume-slider');
+         let volume = parseInt(slider.value);
+
+         //if slider is at 0, set to default 50
+         if(volume===0){
+            volume=50;
+            this.ui.updateVolumeDisplay(soundId,volume);
+
+         }
+
          //sound is off, turn it on
-         this.soundManager.setVolume(soundId,50); //set default volume to 50
+         this.soundManager.setVolume(soundId,volume); //set default volume to 50
          await this.soundManager.playSound(soundId);
          //todo playsound
         this.ui.updateSoundPlayButton(soundId,true );
