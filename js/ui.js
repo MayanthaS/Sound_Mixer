@@ -111,4 +111,16 @@ export class UI{
 
         } 
     }
+    //update main play/pause all button
+    updateMainPlayPauseButton(isPlaying){
+      const icon = this.playPauseButton.querySelector('i');
+
+      if(isPlaying){
+        icon.classList.remove('fa-play');
+        icon.classList.add('fa-pause');
+      }else{
+        icon.classList.add('fa-play');
+        icon.classList.remove('fa-pause');
+      }
+    }
 }

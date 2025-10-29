@@ -56,4 +56,14 @@ loadSound(soundId, filePath){
        
         return true;
     }
+    //play all sounds
+    playAll(){
+        for(const [soundId, audio] of this.audioElements){
+            if(audio.paused){
+                audio.play();
+
+            }
+        }
+        this.isPlaying = false;
+    }
 }
