@@ -104,11 +104,64 @@ export class UI{
                 volumeBarFill.style.width=`${volume}%`;
             }
             //update volume slider
-            const volumeSlider = card.querySelector('.volume-slider');
-            if(volumeSlider){
-                volumeSlider.value=volume;
+            const slider = card.querySelector('.volume-slider');
+            if(slider){
+                slider.value=volume;
             }
 
         } 
+    }
+    //update main play/pause all button
+    updateMainPlayButton(isPlaying){
+      const icon = this.playPauseButton.querySelector('i');
+
+      if(isPlaying){
+        icon.classList.remove('fa-play');
+        icon.classList.add('fa-pause');
+      }else{
+        icon.classList.remove('fa-pause');
+        icon.classList.add('fa-play');
+      }
+    }
+    //Reset all UI elements
+    resetUI(){
+      //reset slider
+      const sliders = document.querySelectorAll('.volume-slider');
+      sliders.forEach((slider)=>{
+         slider.value=0;
+         const soundId = slider.dataset.sound;
+         this.updateVolumeDisplay(soundId,0);
+      });
+
+      //reset all paly buttons
+      const playButtons = document.querySelectorAll('.play-btn');
+      playButtons.forEach((button)=>{
+         const icon = button.querySelector('i');
+          icon.classList.remove('fa-pause');
+          icon.classList.add('fa-play');
+      });
+      //remove playing class
+      const cards = document.querySelectorAll('.sound-card');
+      cards.forEach((card)=>{
+         card.classList.remove('fa-playing');
+      });
+      //reset main play button
+      this.updateMainPlayButton(false);
+
+      //Reset master volume
+      this.masterVolumeSlider.value=100;
+      this.masterVolumeValue.textContent='100%';
+    }
+    //show  save preset modal
+    showModal(){
+      this.modal.classList.remove('hidden');
+      this.modal.classList.add('flex');
+      document.getElementById('presetName').focus();
+    }
+    //hide save preset modal
+    hideModal(){
+      this.modal.classList.add('hidden');
+      this.modal.classList.remove('flex');
+      document.getElementById('presetName').value = '';
     }
 }

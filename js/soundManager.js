@@ -2,7 +2,7 @@ export class soundManager{
     constructor(){
         this.audioElements = new Map();
         this.isPlaying = false;
-        console.log('SoundManager created');
+        
     }
 // Load a sound file
 
@@ -55,5 +55,36 @@ loadSound(soundId, filePath){
         audio.volume = volume/100;
        
         return true;
+    }
+    //play all sounds
+    playAll(){
+        for(const [soundId, audio] of this.audioElements){
+            if(audio.paused){
+                audio.play();
+
+            }
+        }
+        this.isPlaying = true;
+    }
+    //pause all sounds
+    pauseAll(){
+        for(const [soundId, audio] of this.audioElements){
+            if(!audio.paused){
+                audio.pause();
+
+            }
+        }
+        this.isPlaying = false;
+    }
+    //Stop all sounds
+    stopAll(){
+        for(const [soundId, audio] of this.audioElements){
+            if(!audio.paused){
+                audio.pause();
+
+            }
+            audio.currentTime =0;//Rest to begining
+        }
+        this.isPlaying = false;
     }
 }
