@@ -53,7 +53,7 @@ loadSound(soundId, filePath){
         }
         //convert volume 0-100 to 0.0-1.0
         audio.volume = volume/100;
-        console.log(`Volume for ${soundId} set to ${volume}`);
+       
         return true;
     }
 }

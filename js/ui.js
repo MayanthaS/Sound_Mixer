@@ -104,9 +104,9 @@ export class UI{
                 volumeBarFill.style.width=`${volume}%`;
             }
             //update volume slider
-            const volumeSlider = card.querySelector('.volume-slider');
-            if(volumeSlider){
-                volumeSlider.value=volume;
+            const slider = card.querySelector('.volume-slider');
+            if(slider){
+                slider.value=volume;
             }
 
         } 
