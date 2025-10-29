@@ -23,6 +23,9 @@ class SoundMixer{
       //setup all event listeners
       this.setupEventListeners();
 
+      //load custom preset in ui
+      this.loadCustomPresetUI();
+
       //load all sounds
        this.loadAllSounds();
       
@@ -360,6 +363,13 @@ class SoundMixer{
             this.ui.addCustomPreset(name,presetId);
             this.ui.hideModal();
          console.log(`Preset "${name}" saved succesfully with Id :${presetId}`)
+      }
+      //load custom preset buttons in ui
+      loadCustomPresetUI(){
+         const customPreset = this.presetManager.customPresets;
+         for(const [presetId,preset]of Object.entries(customPreset)){
+            this.ui.addCustomPreset(preset.name,presetId);
+         }
       }
 
 }
