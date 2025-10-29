@@ -112,7 +112,7 @@ export class UI{
         } 
     }
     //update main play/pause all button
-    updateMainPlayPauseButton(isPlaying){
+    updateMainPlayButton(isPlaying){
       const icon = this.playPauseButton.querySelector('i');
 
       if(isPlaying){

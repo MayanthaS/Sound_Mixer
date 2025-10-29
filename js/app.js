@@ -64,7 +64,12 @@ class SoundMixer{
             this.setMasterVolume(volume);
          });
     }
-
+    //handle master play/pause button 
+    if(this.ui.playPauseButton){
+       this.ui.playPauseButton.addEventListener('click',()=>{
+          this.toggleAllSound();
+       });
+      }
 
  }
 
@@ -108,7 +113,43 @@ class SoundMixer{
        //todo update play button
        this.ui.updateSoundPlayButton(soundId,false);
     }
+    //update main play/pause button state
+      this.updateMainPlayButton();
+ }
 
+ //Toggle all sound
+ toggleAllSound() {
+    if (this.soundManager.isPlaying) {
+       //toggle all sounds off
+       this.soundManager.pauseAll();
+       this.ui.updateMainPlayeButton(false);
+       sounds.forEach((sound) => {
+          this.ui.updateSoundPlayButton(sound.id, false);
+       })
+    }else{
+       //toggle all sounds on
+       for(const [soundId,audio] of this.soundManager.audioElements){
+          const card = document.querySelector(`[data-sound ="${soundId}"]`);
+          const slider = card.querySelector('.volume-slider');
+       if(slider){
+         let volume = parseInt(slider.value);
+         //if volume is 0, set to default 50
+         if(volume ===0){
+            volume =50;
+            slider.value=50;
+            this.ui.updateVolumeDisplay(soundId, 50);
+         }
+         this.currentSoundState[soundId]=volume;
+
+         const  effectiveVolume = (volume * this.masterVolume)/100;
+         audio.volume = effectiveVolume/100;
+         this.ui.updateSoundPlayButton(soundId,true);
+       }
+       }
+       //play all sounds
+       this.soundManager.playAll();
+         this.ui.updateMainPlayButton(true);
+    }
  }
 
  //set sound volume
@@ -122,6 +163,9 @@ class SoundMixer{
     }
     //update volume value in UI
     this.ui.updateVolumeDisplay(soundId,volume);
+
+    //Sync sounds
+    this.updateMainPlayButton();
  }
    //set master volume
    setMasterVolume(volume){
