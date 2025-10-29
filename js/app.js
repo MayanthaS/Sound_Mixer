@@ -151,6 +151,20 @@ class SoundMixer{
          }
         }
       }
+      //update main play button individually sound
+      updateMainPlayButton(){
+         //check if any sound is playing
+         let anySoundPlaying = false;
+         for(const [soundId, audio] of this.soundManager.audioElements){
+            if(!audio.paused){
+               anySoundPlaying = true;
+               break;
+            }
+         }
+         //update the main play/pause button and internal state
+         this.soundManager.isPlaying = anySoundPlaying;
+         this.ui.updateMainPlayPauseButton(anySoundPlaying);
+      }
 }
 
 
