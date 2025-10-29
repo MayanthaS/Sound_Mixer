@@ -355,6 +355,9 @@ class SoundMixer{
          const presetId = this.presetManager.savePreset(
             name,
             this.currentSoundState);
+
+            //add custom preset button
+            this.ui.addCustomPreset(name,presetId);
             this.ui.hideModal();
          console.log(`Preset "${name}" saved succesfully with Id :${presetId}`)
       }

@@ -64,6 +64,20 @@ export class UI{
      return card;
     }
 
+    //create custom presets button
+    createCustomPresetButton(name,presetId){
+      const button = document.createElement('button');
+      button.className = 'custom-preset-btn bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-all duration-300 relative group';
+      button.dataset.preset =presetId;
+      button.innerHTML = ` <i class="fas fa-star mr-2 text-yellow-400"></i>
+    ${name}
+    <button type="button" class="delete-preset absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" data-preset="${presetId}">
+      <i class="fas fa-times text-xs text-white"></i>
+    </button>`;
+    return button;
+    }
+
+
     //Render all sound cards
     renderSoundCards(sounds){
         this.soundCardsContainer.innerHTML='';
@@ -163,5 +177,11 @@ export class UI{
       this.modal.classList.add('hidden');
       this.modal.classList.remove('flex');
       document.getElementById('presetName').value = '';
+    }
+
+    //add custom preset to UI
+    addCustomPreset(name,presetId){
+      const button =this.createCustomPresetButton(name,presetId);
+      this.customerPresetsContainer.appendChild(button);
     }
 }
