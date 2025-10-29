@@ -113,8 +113,13 @@ class SoundMixer{
 
  //set sound volume
  setSoundVolume(soundId, volume){
-    //const sound volume in manager
-    this.soundManager.setVolume(soundId,volume);
+ //calculate effective volume based on master volume
+    const effectiveVolume = (volume * this.masterVolume)/100;
+ //update the sound  volume  with the scaled volume
+    const audio = this.soundManager.audioElements.get(soundId);
+    if(!audio){
+      audio.volume = effectiveVolume/100;
+    }
     //update volume value in UI
     this.ui.updateVolumeDisplay(soundId,volume);
  }
