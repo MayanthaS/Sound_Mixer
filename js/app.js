@@ -70,7 +70,12 @@ class SoundMixer{
           this.toggleAllSound();
        });
       }
-
+      //handle reset button 
+    if(this.ui.resetButton){
+       this.ui.resetButton.addEventListener('click',()=>{
+          this.resetAll();
+       });
+      }
  }
 
  //load all sounds from the sound data
@@ -114,7 +119,7 @@ class SoundMixer{
        this.ui.updateSoundPlayButton(soundId,false);
     }
     //update main play/pause button state
-      this.updateMainPlayButton();
+      this.updateMainPlayButtonState();
  }
 
  //Toggle all sound
@@ -122,7 +127,7 @@ class SoundMixer{
     if (this.soundManager.isPlaying) {
        //toggle all sounds off
        this.soundManager.pauseAll();
-       this.ui.updateMainPlayeButton(false);
+       this.ui.updateMainPlayButton(false);
        sounds.forEach((sound) => {
           this.ui.updateSoundPlayButton(sound.id, false);
        })
@@ -165,7 +170,7 @@ class SoundMixer{
     this.ui.updateVolumeDisplay(soundId,volume);
 
     //Sync sounds
-    this.updateMainPlayButton();
+    this.updateMainPlayButtonState();
  }
    //set master volume
    setMasterVolume(volume){
@@ -196,18 +201,30 @@ class SoundMixer{
         }
       }
       //update main play button individually sound
-      updateMainPlayButton(){
+      updateMainPlayButtonState(){
          //check if any sound is playing
-         let anySoundPlaying = false;
+         let anySoundsPlaying = false;
          for(const [soundId, audio] of this.soundManager.audioElements){
             if(!audio.paused){
-               anySoundPlaying = true;
+               anySoundsPlaying = true;
                break;
             }
          }
          //update the main play/pause button and internal state
-         this.soundManager.isPlaying = anySoundPlaying;
-         this.ui.updateMainPlayPauseButton(anySoundPlaying);
+         this.soundManager.isPlaying = anySoundsPlaying;
+         this.ui.updateMainPlayButton(anySoundsPlaying);
+      }
+      //reset everything to default state
+      resetAll(){
+         //stop all sounds
+         this.soundManager.stopAll();
+          // RESET MASTER 
+         this.setMasterVolume(100);
+         //reset UI
+         this.ui.resetUI();
+
+         console.log('All sounds and setting reset')
+
       }
 }
 
