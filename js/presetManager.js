@@ -7,6 +7,11 @@ export class presetManager{
         const stored = localStorage.getItem('SoundMixerPresets');
         return stored ? JSON.parse(stored) : {};
     }
+     //loadCustomPresets by ID
+       loadPreset(presetId) {
+    return this.customPresets[presetId] || null;
+  }
+
     // Save custom presets to localStorage
     saveCustomPresets(){
         localStorage.setItem(
@@ -16,12 +21,11 @@ export class presetManager{
     }
     //save current mix as preset
     savePreset(name, soundStates){
-        const presetId = `custom_${Date.now()}`;
+        const presetId = `custom-${Date.now()}`;
 
         //Create preset object
         const preset = {
             name:name,
-            icon:'fa-save',
             sounds:{}
     }
 
@@ -34,12 +38,13 @@ export class presetManager{
     // Save the preset
     this.customPresets[presetId] = preset;
     this.saveCustomPresets();
+
     return presetId;
    }
    //check if preset  name already exits
    presetNameExists(name){
     return Object.values(this.customPresets).some(
-        preset=>preset.name.toLowerCase()===name.toLowerCase()
+        (preset)=>preset.name === name
         );
    }
 }

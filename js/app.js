@@ -7,7 +7,7 @@ class SoundMixer{
  constructor(){
     this.soundManager = new soundManager();
     this.ui = new UI();
-    this.timer = new presetManager();
+    this.presetManager = new presetManager();
     this.currentSoundState ={};
     this.masterVolume = 100;
     this.isInitialized=false;
@@ -22,6 +22,9 @@ class SoundMixer{
 
       //setup all event listeners
       this.setupEventListeners();
+
+      //load custom preset in ui
+      this.loadCustomPresetUI();
 
       //load all sounds
        this.loadAllSounds();
@@ -49,9 +52,9 @@ class SoundMixer{
           await this.toggleSound(soundId);
        }
        //check if preset button clicked
-       if(e.target.classList.contains('preset-btn')){
-          const presetKey = e.target.closest('.preset-btn').dataset.preset;
-          this.loadPreset(presetKey);
+       if (e.target.closest('.custom-preset-btn')) {
+        const presetKey = e.target.closest('.custom-preset-btn').dataset.preset;
+        await this.loadPreset(presetKey, true);
        }
     });
     //handle volume slider changes
@@ -84,16 +87,16 @@ class SoundMixer{
        });
       }
       //handle save preset button
-      const savePresetButton = document.getElementById('savePreset');
-      if(savePresetButton){
-         savePresetButton.addEventListener('click',()=>{
+      const saveButton = document.getElementById('savePreset');
+      if(saveButton){
+         saveButton.addEventListener('click',()=>{
             this.showSavePresetModal();
          });
       }
       //conform save preset button
-      const conformSaveButton = document.getElementById('confirmSave');
-      if(conformSaveButton){
-         conformSaveButton.addEventListener('click',()=>{
+      const confirmSaveButton = document.getElementById('confirmSave');
+      if(confirmSaveButton){
+         confirmSaveButton.addEventListener('click',()=>{
             this.SaveCurrentPreset();
          });
       }
@@ -160,22 +163,211 @@ class SoundMixer{
          //todo playsound
         this.ui.updateSoundPlayButton(soundId,true );
 
-      }else{
-         //sound is on, turn it off
-         this.soundManager.pauseSound(soundId);
-         //todo update play button
-         this.ui.updateSoundPlayButton(soundId,false);
+    }else{
+       //sound is on, turn it off
+       this.soundManager.pauseSound(soundId);
+       //todo update play button
+       this.ui.updateSoundPlayButton(soundId,false);
+
+       //set current sound state to 0 when paused
+        
+      this.currentSoundState[soundId]=0;
+    }
+    //update main play/pause button state
+      this.updateMainPlayButtonState();
+ }
+
+ //Toggle all sound
+ toggleAllSound() {
+    if (this.soundManager.isPlaying) {
+       //toggle all sounds off
+       this.soundManager.pauseAll();
+       this.ui.updateMainPlayButton(false);
+       sounds.forEach((sound) => {
+          this.ui.updateSoundPlayButton(sound.id, false);
+       })
+    }else{
+       //toggle all sounds on
+       for(const [soundId,audio] of this.soundManager.audioElements){
+          const card = document.querySelector(`[data-sound ="${soundId}"]`);
+          const slider = card.querySelector('.volume-slider');
+       if(slider){
+         let volume = parseInt(slider.value);
+         //if volume is 0, set to default 50
+         if(volume ===0){
+            volume =50;
+            slider.value=50;
+            this.ui.updateVolumeDisplay(soundId, 50);
+         }
+         this.currentSoundState[soundId]=volume;
+
+         const  effectiveVolume = (volume * this.masterVolume)/100;
+         audio.volume = effectiveVolume/100;
+         this.ui.updateSoundPlayButton(soundId,true);
+       }
+       }
+       //play all sounds
+       this.soundManager.playAll();
+         this.ui.updateMainPlayButton(true);
+    }
+ }
+
+ //set sound volume
+ setSoundVolume(soundId, volume){
+
+   //set sound volume in  state
+   this.currentSoundState[soundId]=volume;
+   console.log(this.currentSoundState);
+ //calculate effective volume based on master volume
+    const effectiveVolume = (volume * this.masterVolume)/100;
+ //update the sound  volume  with the scaled volume
+    const audio = this.soundManager.audioElements.get(soundId);
+    if(!audio){
+      audio.volume = effectiveVolume/100;
+    }
+    //update volume value in UI
+    this.ui.updateVolumeDisplay(soundId,volume);
+
+    //Sync sounds
+    this.updateMainPlayButtonState();
+ }
+   //set master volume
+   setMasterVolume(volume){
+      this.masterVolume = volume;
+      //update the display
+      const masterVolumeValue = document.getElementById('masterVolumeValue');
+      if(masterVolumeValue){
+         masterVolumeValue.textContent=`${volume}%`;
+      }
+      //apply master volume to all sounds
+      this.applyMasterVolumeToAll();
+   }
+   //apply master volume to all sounds
+        applyMasterVolumeToAll(){
+         for(const[soundId,audio]of this.soundManager.audioElements){
+            if(!audio.paused){
+               const card = document.querySelector(`[data-sound ="${soundId}"]`);
+               const slider = card?.querySelector('.volume-slider');
+               if(slider){
+                  const individualVolume = parseInt(slider.value);
+                  //calculate new volume based on master volume
+                  const effectiveVolume = (individualVolume * this.masterVolume)/100;
+
+                  //apply to the actual audio element
+                  audio.volume = effectiveVolume/100;
+               }
+         }
+        }
+      }
+      //update main play button individually sound
+      updateMainPlayButtonState(){
+         //check if any sound is playing
+         let anySoundsPlaying = false;
+         for(const [soundId, audio] of this.soundManager.audioElements){
+            if(!audio.paused){
+               anySoundsPlaying = true;
+               break;
+            }
+         }
+         //update the main play/pause button and internal state
+         this.soundManager.isPlaying = anySoundsPlaying;
+         this.ui.updateMainPlayButton(anySoundsPlaying);
+      }
+      //reset everything to default state
+      resetAll(){
+         //stop all sounds
+         this.soundManager.stopAll();
+          // RESET MASTER 
+         this.setMasterVolume(100);
+       //Reset  sound state
+       sounds.forEach((sound)=>{
+         this.currentSoundState[sound.id]=0;
+       })
+
+         //reset UI
+         this.ui.resetUI();
+
+         
+
+      }
+      //load a preset config
+      loadPreset(presetKey){
+         const preset = defaultPresets[presetKey];
+         if(!preset){
+            console.error(`Preset ${presetKey} not found`);
+            return false;
+         }
+         //First stop all sounds
+         this.soundManager.stopAll();
+
+         //Reset all  volumes to 0
+        sounds.forEach((sound)=>{
+          this.currentSoundState[sound.id]=0;
+            this.ui.updateVolumeDisplay(sound.id,0);
+            this.ui.updateSoundPlayButton(sound.id,false);
+        });
+        //apply preset volumes
+        for(const[soundId, volume] of Object.entries(preset.sounds)){
+               //set volume state
+             this.currentSoundState[soundId]=volume;
+             //update UI
+             this.ui.updateVolumeDisplay(soundId,volume);
+             this.ui.updateSoundPlayButton(soundId,true);
+
+             //claculater effective volume
+               const effectiveVolume = (volume * this.masterVolume)/100;
+            
+            //get audio element and set value
+               const audio = this.soundManager.audioElements.get(soundId);
+               if(audio){
+                  audio.volume = effectiveVolume/100;
+                  this.soundManager.playSound(soundId);
+                  //play sound
+                  audio.play();
+                  this.ui.updateSoundPlayButton(soundId,true);
+
+               }
+         }
+         //update main play button state
+         this.soundManager.isPlaying = true;
+         this.ui.updateMainPlayButton(true);
+         
+      }
+      //show save preset modal
+      showSavePresetModal(){
+         //Check if any spund are active
+         const hasActiveSounds = Object.values(this.currentSoundState).some(v => v>0);
+         if(!hasActiveSounds){
+            alert('No active sound for preset');
+            return;
+
+         }
+          this.ui.showModal();
       }
 
-   }
-   //set sound volume
-   setSoundVolume(soundId, volume){
-      //const sound volume in manager
-      this.soundManager.setVolume(soundId,volume);
-      //update volume value in UI
-      this.ui.updateVolumeDisplay(soundId,volume);
-   }
+      //Save current preset
+      SaveCurrentPreset(){
+         const nameInput = document.getElementById('presetName');
+         const name = nameInput.value.trim();
+
+         if(!name){
+            alert('Please enter a preset name');
+            return;
+         }
+         if(this.presetManager.presetNameExits(name)){
+            alert(`A preset with the name ${name} already exits`);
+            return;
+         }
+
+         const presetId = this.presetManager.savePreset(
+            name,
+            this.currentSoundState);
+            this.ui.hideModal();
+         console.log(`Preset "${name}" saved succesfully with Id :${presetId}`)
+      }
+
 }
+
 
 //Initialize the app
 document.addEventListener('DOMContentLoaded',()=>{
