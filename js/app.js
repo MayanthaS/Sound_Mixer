@@ -8,6 +8,7 @@ class SoundMixer{
     this.ui = new UI();
     this.timer = null;
     this.currentSoundState ={};
+    this.masterVolume = 100;
     this.isInitialized=false;
  }
  async init(){
@@ -55,6 +56,16 @@ class SoundMixer{
             
          }
       });
+      //handle master volume slider changes
+    const masterVolumeSlider = document.getElementById('masterVolume');
+    if(masterVolumeSlider){
+         masterVolumeSlider.addEventListener('input',(e)=>{
+            const volume = parseInt(e.target.value);
+            this.setMasterVolume(volume);
+         });
+    }
+
+
  }
 
  //load all sounds from the sound data
@@ -107,6 +118,34 @@ class SoundMixer{
     //update volume value in UI
     this.ui.updateVolumeDisplay(soundId,volume);
  }
+   //set master volume
+   setMasterVolume(volume){
+      this.masterVolume = volume;
+      //update the display
+      const masterVolumeValue = document.getElementById('masterVolumeValue');
+      if(masterVolumeValue){
+         masterVolumeValue.textContent=`${volume}%`;
+      }
+      //apply master volume to all sounds
+      this.applyMasterVolumeToAll();
+   }
+   //apply master volume to all sounds
+        applyMasterVolumeToAll(){
+         for(const[soundId,audio]of this.soundManager.audioElements){
+            if(!audio.paused){
+               const card = document.querySelector(`[data-sound ="${soundId}"]`);
+               const slider = card?.querySelector('.volume-slider');
+               if(slider){
+                  const individualVolume = parseInt(slider.value);
+                  //calculate new volume based on master volume
+                  const effectiveVolume = (individualVolume * this.masterVolume)/100;
+
+                  //apply to the actual audio element
+                  audio.volume = effectiveVolume/100;
+               }
+         }
+        }
+      }
 }
 
 
