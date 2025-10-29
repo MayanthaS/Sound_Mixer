@@ -7,7 +7,7 @@ class SoundMixer{
  constructor(){
     this.soundManager = new soundManager();
     this.ui = new UI();
-    this.timer = new presetManager();
+    this.presetManager = new presetManager();
     this.currentSoundState ={};
     this.masterVolume = 100;
     this.isInitialized=false;
@@ -84,16 +84,16 @@ class SoundMixer{
        });
       }
       //handle save preset button
-      const savePresetButton = document.getElementById('savePreset');
-      if(savePresetButton){
-         savePresetButton.addEventListener('click',()=>{
+      const saveButton = document.getElementById('savePreset');
+      if(saveButton){
+         saveButton.addEventListener('click',()=>{
             this.showSavePresetModal();
          });
       }
       //conform save preset button
-      const conformSaveButton = document.getElementById('confirmSave');
-      if(conformSaveButton){
-         conformSaveButton.addEventListener('click',()=>{
+      const confirmSaveButton = document.getElementById('confirmSave');
+      if(confirmSaveButton){
+         confirmSaveButton.addEventListener('click',()=>{
             this.SaveCurrentPreset();
          });
       }
@@ -159,7 +159,7 @@ class SoundMixer{
 
        //set current sound state to 0 when paused
         
-      this.currentSoundState[soundId]=0;
+      this.currentSoundState[soundId] = 0;
     }
     //update main play/pause button state
       this.updateMainPlayButtonState();
@@ -205,7 +205,7 @@ class SoundMixer{
 
    //set sound volume in  state
    this.currentSoundState[soundId]=volume;
-   console.log(this.currentSoundState);
+  
  //calculate effective volume based on master volume
     const effectiveVolume = (volume * this.masterVolume)/100;
  //update the sound  volume  with the scaled volume
@@ -219,6 +219,10 @@ class SoundMixer{
     //Sync sounds
     this.updateMainPlayButtonState();
  }
+
+
+
+ 
    //set master volume
    setMasterVolume(volume){
       this.masterVolume = volume;
@@ -325,6 +329,7 @@ class SoundMixer{
       showSavePresetModal(){
          //Check if any spund are active
          const hasActiveSounds = Object.values(this.currentSoundState).some(v => v>0);
+        
          if(!hasActiveSounds){
             alert('No active sound for preset');
             return;
@@ -342,10 +347,10 @@ class SoundMixer{
             alert('Please enter a preset name');
             return;
          }
-         if(this.presetManager.presetNameExits(name)){
-            alert(`A preset with the name ${name} already exits`);
-            return;
-         }
+           if (this.presetManager.presetNameExists(name)) {
+      alert(`A preset with the name ${name} already exists`);
+      return;
+    }
 
          const presetId = this.presetManager.savePreset(
             name,
