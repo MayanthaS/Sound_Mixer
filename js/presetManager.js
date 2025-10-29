@@ -7,6 +7,11 @@ export class presetManager{
         const stored = localStorage.getItem('SoundMixerPresets');
         return stored ? JSON.parse(stored) : {};
     }
+     //loadCustomPresets by ID
+       loadPreset(presetId) {
+    return this.customPresets[presetId] || null;
+  }
+
     // Save custom presets to localStorage
     saveCustomPresets(){
         localStorage.setItem(

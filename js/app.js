@@ -52,9 +52,9 @@ class SoundMixer{
           await this.toggleSound(soundId);
        }
        //check if preset button clicked
-       if(e.target.classList.contains('preset-btn')){
-          const presetKey = e.target.closest('.preset-btn').dataset.preset;
-          this.loadPreset(presetKey);
+       if (e.target.closest('.custom-preset-btn')) {
+        const presetKey = e.target.closest('.custom-preset-btn').dataset.preset;
+        await this.loadPreset(presetKey, true);
        }
     });
     //handle volume slider changes
@@ -157,6 +157,8 @@ class SoundMixer{
     }else{
        //sound is on, turn it off
        this.soundManager.pauseSound(soundId);
+       this.currentSoundState[soundId] =0;
+       this.ui.updateSoundPlayButton[soundId,false];
        //todo update play button
        this.ui.updateSoundPlayButton(soundId,false);
 
@@ -286,8 +288,14 @@ class SoundMixer{
 
       }
       //load a preset config
-      loadPreset(presetKey){
-         const preset = defaultPresets[presetKey];
+      loadPreset(presetKey,custom=false){
+         let preset;
+         if(custom){
+            preset = this.presetManager.loadPreset(presetKey)
+         }else{
+             preset = defaultPresets[presetKey];
+         }
+         
          if(!preset){
             console.error(`Preset ${presetKey} not found`);
             return false;
