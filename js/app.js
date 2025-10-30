@@ -1,6 +1,7 @@
 import { presetManager } from "./presetManager.js";
 import {sounds,defaultPresets} from "./soundData.js";
 import {soundManager} from "./soundManager.js";
+import { Timer } from "./timer.js";
 import {UI} from "./ui.js";
 class SoundMixer{
     //Initialize the dependencies and default values
@@ -8,6 +9,11 @@ class SoundMixer{
     this.soundManager = new soundManager();
     this.ui = new UI();
     this.presetManager = new presetManager();
+    this.timer =new Timer(
+        () => this.onTimerComplete(),
+      (minutes, seconds) => this.ui.updateTimerDisplay(minutes, seconds)
+  
+    );
     this.currentSoundState ={};
     this.masterVolume = 100;
     this.isInitialized=false;
@@ -43,14 +49,41 @@ class SoundMixer{
 
  //setup all event listeners
  setupEventListeners(){
+      // Check if play button was clicked
+      document.addEventListener('click', async (e) => {
+        if (e.target.closest('.play-btn')) {
+          const soundId = e.target.closest('.play-btn').dataset.sound;
+          await this.toggleSound(soundId);
+        }
+      });
+
     //handle all clicks with event delegation
     document.addEventListener('click', async (e) => {
-       //check if play button clicked
+         //check if play button clicked
        const playBtn = e.target.closest('.play-btn');
        if(playBtn){
           const soundId = playBtn.dataset.sound;
           await this.toggleSound(soundId);
        }
+       // Check if play button was clicked
+      if (e.target.closest('.play-btn')) {
+        const soundId = e.target.closest('.play-btn').dataset.sound;
+        await this.toggleSound(soundId);
+      }
+      // Check if delete button was clicked
+      if (e.target.closest('.delete-preset')) {
+        e.stopPropagation();
+        const presetId = e.target.closest('.delete-preset').dataset.preset;
+
+        this.deleteCustomPreset(presetId);
+
+        return;
+      }
+        // Check if a default preset button was clicked
+      if (e.target.closest('.preset-btn')) {
+        const presetKey = e.target.closest('.preset-btn').dataset.preset;
+        await this.loadPreset(presetKey);
+      }
        //check if preset button clicked
        if (e.target.closest('.custom-preset-btn')) {
         const presetKey = e.target.closest('.custom-preset-btn').dataset.preset;
@@ -115,7 +148,28 @@ class SoundMixer{
             }
          });
       }
+         // Timer select
+    const timerSelect = document.getElementById('timerSelect');
+    if (timerSelect) {
+      timerSelect.addEventListener('change', (e) => {
+        const minutes = parseInt(e.target.value);
+     
+        if (minutes > 0) {
+          this.timer.start(minutes);
+          console.log(`Timer started for ${minutes} minutes`);
+        } else {
+          this.timer.stop();
+        }
+      });
+    }
+    //theme toogel
+    if(this.ui.themeToggle){
+      this.ui.themeToggle.addEventListener('click',() =>{
+         this.ui.toggleTheme();
+      })
+    }
  }
+
 
  //load all sounds from the sound data
  loadAllSounds(){sounds.forEach((sound)=>{
@@ -125,43 +179,34 @@ class SoundMixer{
             console.error(`Failed to load sound: ${sound.id} from ${audioUrl}`);
          }
       });
+      
+ }
 
-      // hadlevolume slider
-      document.addEventListener('input',(e)=>{
-         if(e.target.classList.contains('volume-slider')){
-            const soundId = e.target.dataset.sound;
-            const volume = parseInt(e.target.value);
-            this.setSoundVolume(soundId,volume);
-           
-         }
-      });
-   }
-
-   //setup event listeners
-   setupEventListeners(){
-      //handle all clicks with event delegation
-      document.addEventListener('click', async (e) => {
-         //check if play button clicked
-         const playBtn = e.target.closest('.play-btn');
-         if(playBtn){
-            const soundId = playBtn.dataset.sound;
-            await this.toggleSound(soundId);
-         }
-      });
-   }
-   //toggle play/pause for specific sound
-   async toggleSound(soundId){
-      const audio = this.soundManager.audioElements.get(soundId);
-      if(!audio){
-         console.error(`Audio element for ${soundId} not found`);
-         return false;
+ //toggle play/pause for specific sound
+ async toggleSound(soundId){
+    const audio = this.soundManager.audioElements.get(soundId);
+    if(!audio){
+       console.error(`Audio element for ${soundId} not found`);
+       return false;
+    }
+    if(audio.paused){
+      //get current volume
+      const card = document.querySelector(`[data-sound ="${soundId}"]`);
+      const slider = card.querySelector('.volume-slider');
+      let volume = parseInt(slider.value);
+      //if volume is 0, set to default 50
+      if(volume ===0){
+         volume =50;
+         this.ui.updateVolumeDisplay(soundId, volume);
       }
-      if(audio.paused){
-         //sound is off, turn it on
-         this.soundManager.setVolume(soundId,50); //set default volume to 50
-         await this.soundManager.playSound(soundId);
-         //todo playsound
-        this.ui.updateSoundPlayButton(soundId,true );
+      //set current sound state
+      this.currentSoundState[soundId]=volume;
+
+       //sound is off, turn it on
+       this.soundManager.setVolume(soundId,volume); //set default volume to 50
+       await this.soundManager.playSound(soundId);
+       //todo playsound
+      this.ui.updateSoundPlayButton(soundId,true );
 
     }else{
        //sound is on, turn it off
@@ -279,6 +324,15 @@ class SoundMixer{
          this.soundManager.stopAll();
           // RESET MASTER 
          this.setMasterVolume(100);
+
+         //reset timer 
+         this.timer.stop();
+         if(this.ui.timerSelect){
+            this.ui.timerSelect.value = '0';
+         }
+         //reset active presets
+         this.ui.setActivePreset(null)
+
        //Reset  sound state
        sounds.forEach((sound)=>{
          this.currentSoundState[sound.id]=0;
@@ -321,7 +375,7 @@ class SoundMixer{
                const audio = this.soundManager.audioElements.get(soundId);
                if(audio){
                   audio.volume = effectiveVolume/100;
-                  this.soundManager.playSound(soundId);
+                 
                   //play sound
                   audio.play();
                   this.ui.updateSoundPlayButton(soundId,true);
@@ -331,6 +385,11 @@ class SoundMixer{
          //update main play button state
          this.soundManager.isPlaying = true;
          this.ui.updateMainPlayButton(true);
+
+         //Set active  preset
+         if(presetKey){
+            this.ui.setActivePreset(presetKey);
+         }
          
       }
       //show save preset modal
@@ -364,6 +423,13 @@ class SoundMixer{
             this.currentSoundState);
             this.ui.hideModal();
          console.log(`Preset "${name}" saved succesfully with Id :${presetId}`)
+      }
+      //load custom preset buttons in ui
+      loadCustomPresetUI(){
+         const customPreset = this.presetManager.customPresets;
+         for(const [presetId,preset]of Object.entries(customPreset)){
+            this.ui.addCustomPreset(preset.name,presetId);
+         }
       }
 
 }

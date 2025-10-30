@@ -145,7 +145,7 @@ input[type="range"]::-moz-range-track {
 }
 
 input[type="range"]::-moz-range-thumb {
-    background: linear-gradient(135deg, #a855f7, #ec4899);
+    background: linear-gradient(135deg, #2e21e9, #ec4899);
     height: 18px;
     width: 18px;
     border-radius: 50%;

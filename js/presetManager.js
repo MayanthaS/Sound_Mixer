@@ -47,4 +47,14 @@ export class presetManager{
         (preset)=>preset.name === name
         );
    }
+   //Delete custome presets
+   deletePreset(presetId){
+     if(this.customPresets[presetId]){
+        delete this.customPresets[presetId];
+        this.saveCustomPresets();
+        return true;
+     }
+     return false;
+   }
+
 }
