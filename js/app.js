@@ -1,6 +1,7 @@
 import { presetManager } from "./presetManager.js";
 import {sounds,defaultPresets} from "./soundData.js";
 import {soundManager} from "./soundManager.js";
+import { Timer } from "./timer.js";
 import {UI} from "./ui.js";
 class SoundMixer{
     //Initialize the dependencies and default values
@@ -8,6 +9,11 @@ class SoundMixer{
     this.soundManager = new soundManager();
     this.ui = new UI();
     this.presetManager = new presetManager();
+    this.timer =new Timer(
+        () => this.onTimerComplete(),
+      (minutes, seconds) => this.ui.updateTimerDisplay(minutes, seconds)
+  
+    );
     this.currentSoundState ={};
     this.masterVolume = 100;
     this.isInitialized=false;
@@ -53,6 +59,12 @@ class SoundMixer{
 
     //handle all clicks with event delegation
     document.addEventListener('click', async (e) => {
+         //check if play button clicked
+       const playBtn = e.target.closest('.play-btn');
+       if(playBtn){
+          const soundId = playBtn.dataset.sound;
+          await this.toggleSound(soundId);
+       }
        // Check if play button was clicked
       if (e.target.closest('.play-btn')) {
         const soundId = e.target.closest('.play-btn').dataset.sound;
@@ -136,7 +148,22 @@ class SoundMixer{
             }
          });
       }
+         // Timer select
+    const timerSelect = document.getElementById('timerSelect');
+    if (timerSelect) {
+      timerSelect.addEventListener('change', (e) => {
+        const minutes = parseInt(e.target.value);
+     
+        if (minutes > 0) {
+          this.timer.start(minutes);
+          console.log(`Timer started for ${minutes} minutes`);
+        } else {
+          this.timer.stop();
+        }
+      });
+    }
  }
+
 
  //load all sounds from the sound data
  loadAllSounds(){sounds.forEach((sound)=>{
@@ -297,6 +324,12 @@ class SoundMixer{
          this.soundManager.stopAll();
           // RESET MASTER 
          this.setMasterVolume(100);
+
+         //reset timer 
+         this.timer.stop();
+         if(this.ui.timerSelect){
+            this.ui.timerSelect.value = '0';
+         }
          //reset active presets
          this.ui.setActivePreset(null)
 
@@ -415,6 +448,31 @@ class SoundMixer{
          this.ui.removeCustomPreset(presetId);
          console.log(`Preset ${presetId} deleted`);
       }
+    }
+
+    //timer complet call back
+    onTimerComplete(){
+      //stop all sounds
+      this.soundManager.pauseAll();
+      this.ui.updateMainPlayButton(false);
+
+      //update individual buttons
+      sounds.forEach(sound =>{
+         this.ui.updateSoundPlayButton(sound.id,false);
+      });
+
+      //Reset timer drowdown
+      const timerSelect = document.getElementById('timerSelect');
+      if (timerSelect) {
+      timerSelect.value = '0';
+    }
+
+    // Clear and hide timer display
+    if (this.ui.timerDisplay) {
+      this.ui.timerDisplay.textContent = '';
+      this.ui.timerDisplay.classList.add('hidden');
+    }
+  
     }
 
 }
