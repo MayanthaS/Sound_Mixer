@@ -162,6 +162,12 @@ class SoundMixer{
         }
       });
     }
+    //theme toogel
+    if(this.ui.themeToggle){
+      this.ui.themeToggle.addEventListener('click',() =>{
+         this.ui.toggleTheme();
+      })
+    }
  }
 
 
