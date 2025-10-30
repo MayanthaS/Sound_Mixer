@@ -53,12 +53,20 @@ class SoundMixer{
 
     //handle all clicks with event delegation
     document.addEventListener('click', async (e) => {
-       //check if play button clicked
-       const playBtn = e.target.closest('.play-btn');
-       if(playBtn){
-          const soundId = playBtn.dataset.sound;
-          await this.toggleSound(soundId);
-       }
+       // Check if play button was clicked
+      if (e.target.closest('.play-btn')) {
+        const soundId = e.target.closest('.play-btn').dataset.sound;
+        await this.toggleSound(soundId);
+      }
+      // Check if delete button was clicked
+      if (e.target.closest('.delete-preset')) {
+        e.stopPropagation();
+        const presetId = e.target.closest('.delete-preset').dataset.preset;
+
+        this.deleteCustomPreset(presetId);
+
+        return;
+      }
         // Check if a default preset button was clicked
       if (e.target.closest('.preset-btn')) {
         const presetKey = e.target.closest('.preset-btn').dataset.preset;
@@ -400,6 +408,14 @@ class SoundMixer{
             this.ui.addCustomPreset(preset.name,presetId);
          }
       }
+    //Delete custome presets
+
+    deleteCustomPreset(presetId){
+      if(this.presetManager.deletePreset(presetId)){
+         this.ui.removeCustomPreset(presetId);
+         console.log(`Preset ${presetId} deleted`);
+      }
+    }
 
 }
 
