@@ -43,6 +43,14 @@ class SoundMixer{
 
  //setup all event listeners
  setupEventListeners(){
+      // Check if play button was clicked
+      document.addEventListener('click', async (e) => {
+        if (e.target.closest('.play-btn')) {
+          const soundId = e.target.closest('.play-btn').dataset.sound;
+          await this.toggleSound(soundId);
+        }
+      });
+
     //handle all clicks with event delegation
     document.addEventListener('click', async (e) => {
        //check if play button clicked
@@ -51,6 +59,11 @@ class SoundMixer{
           const soundId = playBtn.dataset.sound;
           await this.toggleSound(soundId);
        }
+        // Check if a default preset button was clicked
+      if (e.target.closest('.preset-btn')) {
+        const presetKey = e.target.closest('.preset-btn').dataset.preset;
+        await this.loadPreset(presetKey);
+      }
        //check if preset button clicked
        if (e.target.closest('.custom-preset-btn')) {
         const presetKey = e.target.closest('.custom-preset-btn').dataset.preset;
@@ -136,7 +149,7 @@ class SoundMixer{
        return false;
     }
     if(audio.paused){
-      //get current volume
+      //set current volume
       const card = document.querySelector(`[data-sound ="${soundId}"]`);
       const slider = card.querySelector('.volume-slider');
       let volume = parseInt(slider.value);
@@ -276,6 +289,9 @@ class SoundMixer{
          this.soundManager.stopAll();
           // RESET MASTER 
          this.setMasterVolume(100);
+         //reset active presets
+         this.ui.setActivePreset(null)
+
        //Reset  sound state
        sounds.forEach((sound)=>{
          this.currentSoundState[sound.id]=0;
@@ -324,7 +340,7 @@ class SoundMixer{
                const audio = this.soundManager.audioElements.get(soundId);
                if(audio){
                   audio.volume = effectiveVolume/100;
-                  this.soundManager.playSound(soundId);
+                 
                   //play sound
                   audio.play();
                   this.ui.updateSoundPlayButton(soundId,true);
@@ -334,6 +350,11 @@ class SoundMixer{
          //update main play button state
          this.soundManager.isPlaying = true;
          this.ui.updateMainPlayButton(true);
+
+         //Set active  preset
+         if(presetKey){
+            this.ui.setActivePreset(presetKey);
+         }
          
       }
       //show save preset modal
